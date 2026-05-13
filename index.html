@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jack Ball</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --navy:        #09111f;
+      --navy2:       #0f1c2e;
+      --navy3:       #162033;
+      --blue:        #4a90d9;
+      --blue-dim:    rgba(74,144,217,0.12);
+      --blue-border: rgba(74,144,217,0.28);
+      --text:        #dde4ef;
+      --muted:       #7e93aa;
+      --faint:       #3d5068;
+      --border:      rgba(255,255,255,0.07);
+      --card-bg:     #111f30;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--text); font-weight: 400; line-height: 1.65; }
+    h1,h2,h3,h4,h5,.syne { font-family: 'Syne', sans-serif; }
+
+    /* PAGE SWITCHING */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* NAVBAR */
+    .navbar { background: rgba(9,17,31,0.95) !important; backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); padding: 0.9rem 0; position: sticky; top: 0; z-index: 999; }
+    .navbar-brand { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text) !important; }
+    .navbar-nav .nav-link { color: var(--muted) !important; font-size: 0.8rem; letter-spacing: 0.09em; text-transform: uppercase; padding: 0.4rem 1rem !important; transition: color 0.2s; cursor: pointer; }
+    .navbar-nav .nav-link:hover, .navbar-nav .nav-link.tab-active { color: var(--text) !important; }
+    .navbar-toggler { border-color: var(--faint); }
+    .navbar-toggler-icon { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(125,147,170,1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+
+    /* EYEBROW */
+    .section-eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--blue); margin-bottom: 1rem; }
+    .section-eyebrow::before { content: ''; display: inline-block; width: 18px; height: 1.5px; background: var(--blue); border-radius: 2px; }
+
+    /* SECTION */
+    .section-dark  { background: var(--navy);  padding: 6rem 0; }
+    .section-dark2 { background: var(--navy2); padding: 6rem 0; }
+    .section-heading { font-size: clamp(2rem,4vw,3rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 2.5rem; color: var(--text); }
+
+    /* HERO */
+    #hero { min-height: 100vh; display: flex; align-items: center; background: linear-gradient(135deg, var(--navy) 60%, var(--navy2) 100%); padding-top: 5rem; padding-bottom: 3rem; position: relative; overflow: hidden; }
+    #hero::after { content: ''; position: absolute; top: -20%; right: -15%; width: 600px; height: 600px; background: radial-gradient(circle, rgba(74,144,217,0.07) 0%, transparent 65%); pointer-events: none; }
+    .hero-name { font-size: clamp(3.5rem,9vw,7.5rem); font-weight: 800; line-height: 0.93; letter-spacing: -0.035em; color: var(--text); margin-bottom: 0.2rem; }
+    .hero-name .outline { color: transparent; -webkit-text-stroke: 1.5px rgba(221,228,239,0.22); }
+    .hero-title { font-size: 1rem; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; font-family: 'Syne', sans-serif; font-weight: 600; margin-bottom: 1.5rem; }
+    .hero-bio { font-size: 1.05rem; color: var(--muted); font-weight: 300; max-width: 480px; line-height: 1.75; margin-bottom: 2.25rem; }
+    .btn-primary-custom { background: var(--blue); color: #fff; border: none; padding: 0.72rem 1.75rem; border-radius: 4px; font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: opacity 0.2s, transform 0.18s; }
+    .btn-primary-custom:hover { opacity: 0.85; transform: translateY(-2px); color: #fff; }
+    .btn-ghost-custom { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 0.72rem 1.75rem; border-radius: 4px; font-size: 0.85rem; letter-spacing: 0.04em; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem; transition: border-color 0.2s, color 0.2s; }
+    .btn-ghost-custom:hover { border-color: var(--blue-border); color: var(--text); }
+
+    /* STATS */
+    #stats { background: var(--navy2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0; }
+    .stat-col { padding: 2.25rem 2.5rem; border-right: 1px solid var(--border); }
+    .stat-col:last-child { border-right: none; }
+    .stat-number { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -0.03em; }
+    .stat-number .unit { font-size: 1.2rem; color: var(--blue); }
+    .stat-desc { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.4rem; }
+    .stat-sub { font-size: 0.7rem; color: var(--faint); margin-top: 0.15rem; }
+
+    /* ABOUT */
+    .about-lead { font-size: 1.05rem; color: var(--muted); font-weight: 300; line-height: 1.8; margin-bottom: 1.2rem; }
+    .about-lead strong { color: var(--text); font-weight: 500; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 0.85rem 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+    .info-key { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); }
+    .info-val { color: var(--text); text-align: right; }
+    .badge-custom { display: inline-block; background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue-border); padding: 2px 10px; border-radius: 20px; font-size: 0.68rem; letter-spacing: 0.06em; font-weight: 500; }
+
+    /* EXP CARDS */
+    .exp-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem 2rem; height: 100%; position: relative; overflow: hidden; transition: border-color 0.22s; }
+    .exp-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--blue); opacity: 0; transition: opacity 0.22s; }
+    .exp-card:hover { border-color: var(--blue-border); }
+    .exp-card:hover::before { opacity: 1; }
+    .exp-role { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.15rem; }
+    .exp-org { font-size: 0.82rem; color: var(--blue); margin-bottom: 0.1rem; }
+    .exp-date { font-size: 0.7rem; color: var(--faint); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 1rem; }
+    .exp-list { list-style: none; padding: 0; margin: 0; }
+    .exp-list li { font-size: 0.85rem; color: var(--muted); padding-left: 1.1rem; position: relative; margin-bottom: 0.45rem; line-height: 1.55; }
+    .exp-list li::before { content: '-'; position: absolute; left: 0; color: var(--faint); }
+
+    /* RESUME */
+    #resume { background: var(--navy); padding: 6rem 0; }
+    .resume-wrap { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 3.5rem 4rem; max-width: 860px; margin: 0 auto; }
+    .resume-name { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+    .resume-tagline { font-size: 0.88rem; color: var(--blue); letter-spacing: 0.08em; text-transform: uppercase; font-family: 'Syne', sans-serif; font-weight: 600; margin-bottom: 1rem; }
+    .resume-contact { display: flex; flex-wrap: wrap; gap: 1.25rem; font-size: 0.82rem; color: var(--muted); margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+    .resume-contact a { color: var(--muted); text-decoration: none; }
+    .resume-contact a:hover { color: var(--blue); }
+    .resume-contact span { display: flex; align-items: center; gap: 0.35rem; }
+    .resume-section-title { font-family: 'Syne', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue); margin-bottom: 1.1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--blue-border); }
+    .resume-block { margin-bottom: 2.25rem; }
+    .resume-entry { margin-bottom: 1.4rem; }
+    .resume-entry-header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem; }
+    .resume-entry-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .resume-entry-date { font-size: 0.72rem; color: var(--faint); letter-spacing: 0.07em; white-space: nowrap; }
+    .resume-entry-org { font-size: 0.8rem; color: var(--blue); margin-bottom: 0.6rem; }
+    .resume-entry-bullets { list-style: none; padding: 0; margin: 0; }
+    .resume-entry-bullets li { font-size: 0.83rem; color: var(--muted); padding-left: 1.1rem; position: relative; margin-bottom: 0.35rem; line-height: 1.55; }
+    .resume-entry-bullets li::before { content: '▸'; position: absolute; left: 0; color: var(--blue); font-size: 0.6rem; top: 3px; }
+    .resume-skills-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .skill-pill { background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--muted); padding: 0.3rem 0.85rem; border-radius: 4px; font-size: 0.78rem; letter-spacing: 0.03em; }
+
+    /* EDU CARDS */
+    .edu-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem; height: 100%; }
+    .edu-icon { font-size: 1rem; color: var(--blue); margin-bottom: 0.75rem; }
+    .edu-title { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+    .edu-org { font-size: 0.8rem; color: var(--blue); margin-bottom: 0.2rem; }
+    .edu-date { font-size: 0.72rem; color: var(--faint); }
+
+    /* CONTACT */
+    #contact { padding: 6rem 0; }
+    .contact-link-row { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 0; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--text); transition: color 0.2s; }
+    .contact-link-row:hover { color: var(--blue); }
+    .contact-type { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 0.15rem; }
+    .contact-link-row .ci { opacity: 0; transform: translateX(-6px); transition: opacity 0.2s, transform 0.2s; }
+    .contact-link-row:hover .ci { opacity: 1; transform: translateX(0); }
+
+    /* FOOTER */
+    footer { background: var(--navy2); border-top: 1px solid var(--border); padding: 1.75rem 0; font-size: 0.78rem; color: var(--faint); }
+
+    /* GAME PAGE */
+    #page-game { background: var(--navy); min-height: 100vh; padding: 3rem 0 2rem; }
+    .game-header { text-align: center; margin-bottom: 1.5rem; }
+    .game-header h2 { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); margin-bottom: 0.25rem; }
+    .game-header p { font-size: 0.82rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .game-hud { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1rem; }
+    .game-hud .hud-block { text-align: center; }
+    .game-hud .hud-val { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--text); display: block; line-height: 1; }
+    .game-hud .hud-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-top: 0.2rem; }
+    .canvas-wrap { display: flex; justify-content: center; position: relative; }
+    #gameCanvas { display: block; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 0 40px rgba(74,144,217,0.08); background: #e8f4ff; max-width: 100%; }
+    #gameOverlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(9,17,31,0.9); border-radius: 6px; text-align: center; padding: 2rem; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+    #gameOverlay.show { opacity: 1; pointer-events: all; }
+    #gameOverlay h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; color: var(--text); margin-bottom: 0.5rem; }
+    #gameOverlay p { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.25rem; }
+    .speed-wrap { display: flex; align-items: center; gap: 0.75rem; max-width: 400px; margin: 0.75rem auto; font-size: 0.72rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em; }
+    .speed-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .speed-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.3s; width: 10%; }
+    .game-legend { display: flex; gap: 1.5rem; justify-content: center; margin: 0.75rem 0; flex-wrap: wrap; }
+    .game-legend span { font-size: 0.72rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.07em; display: flex; align-items: center; gap: 0.4rem; }
+    .leg-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+    .game-controls { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem 0 2rem; }
+    .dpad { display: grid; grid-template-areas: '. up .' 'left . right' '. down .'; gap: 4px; }
+    .dpad button { width: 42px; height: 42px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--muted); font-size: 1rem; cursor: pointer; transition: background 0.1s, color 0.1s; }
+    .dpad button:hover { background: var(--navy3); color: var(--text); }
+    .dpad button:active { background: var(--blue-dim); }
+    .dpad .up { grid-area: up; } .dpad .down { grid-area: down; } .dpad .left { grid-area: left; } .dpad .right { grid-area: right; }
+    .btn-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+    .gbtn { padding: 0.5rem 1.4rem; border: none; border-radius: 4px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; font-family: 'Syne', sans-serif; transition: opacity 0.15s; }
+    .gbtn-primary { background: var(--blue); color: white; }
+    .gbtn-primary:hover { opacity: 0.85; }
+    .gbtn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .gbtn-ghost:hover { color: var(--text); border-color: var(--blue-border); }
+
+    /* UTILITY */
+    .divider { border-top: 1px solid var(--border); margin: 2rem 0; }
+    @media (max-width: 768px) {
+      .stat-col { border-right: none; border-bottom: 1px solid var(--border); }
+      .resume-wrap { padding: 2rem 1.5rem; }
+      .resume-contact { flex-direction: column; gap: 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="#" onclick="showPage('home');return false;">Jack Ball</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link tab-active" id="tab-home" href="#" onclick="showPage('home');return false;">Home</a></li>
+        <li class="nav-item"><a class="nav-link" id="tab-game" href="#" onclick="showPage('game');return false;">Ski Snake</a></li>
+        <li class="nav-item"><a class="nav-link" href="scratch.html" target="_blank">SAF Page</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ===================== PAGE: HOME ===================== -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-8">
+          <div class="section-eyebrow">Orem, Utah &mdash; BYU &bull; Centerline Aviation &bull; Sundance Resort</div>
+          <h1 class="hero-name">
+            Jack<br>
+            <span class="outline">Ball</span>
+          </h1>
+          <p class="hero-title">Pre-Business Student &amp; Private Pilot</p>
+          <p class="hero-bio">First-year at Brigham Young University. Private Pilot with 189.5 hours logged and instrument rating in progress. I work well in fast-moving environments and take accountability seriously.</p>
+          <div class="d-flex flex-wrap gap-3">
+            <a href="#resume" class="btn-primary-custom"><i class="bi bi-file-text"></i> View Resume</a>
+            <a href="#contact" class="btn-ghost-custom"><i class="bi bi-envelope"></i> Get in Touch</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section id="stats">
+    <div class="container-fluid px-0">
+      <div class="row g-0">
+        <div class="col-6 col-md-3 stat-col">
+          <div class="stat-number"><span class="count-up" data-target="189">0</span><span class="unit">+</span></div>
+          <div class="stat-desc">Flight Hours</div>
+          <div class="stat-sub">C172 &amp; Diamond DA40</div>
+        </div>
+        <div class="col-6 col-md-3 stat-col">
+          <div class="stat-number"><span class="count-up" data-target="340">0</span></div>
+          <div class="stat-desc">Landings</div>
+          <div class="stat-sub">Day &amp; Night</div>
+        </div>
+        <div class="col-6 col-md-3 stat-col">
+          <div class="stat-number"><span class="count-up" data-target="41">0</span></div>
+          <div class="stat-desc">Instrument Approaches</div>
+          <div class="stat-sub">ILS, RNAV, VOR</div>
+        </div>
+        <div class="col-6 col-md-3 stat-col">
+          <div class="stat-number"><span class="count-up" data-target="4">0</span><span class="unit">+</span></div>
+          <div class="stat-desc">Years Work Experience</div>
+          <div class="stat-sub">Resort &amp; Property Ops</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="section-dark">
+    <div class="container">
+      <div class="row g-5 align-items-start">
+        <div class="col-lg-7">
+          <div class="section-eyebrow">About Me</div>
+          <h2 class="section-heading">Who I am.</h2>
+          <p class="about-lead">I'm a first-year student at <strong>Brigham Young University</strong> working toward BYU's Marriott School of Business. Outside the classroom I'm a certified <strong>Private Pilot</strong> actively building toward an instrument rating at Centerline Aviation in Spanish Fork, Utah.</p>
+          <p class="about-lead">I've spent the last four-plus years in physically demanding, guest-facing roles across ski resorts and property management. I show up on time, adapt fast, and take care of equipment and people like they matter.</p>
+        </div>
+        <div class="col-lg-5">
+          <div class="info-row"><span class="info-key">Location</span><span class="info-val">Orem, Utah</span></div>
+          <div class="info-row"><span class="info-key">University</span><span class="info-val">Brigham Young University</span></div>
+          <div class="info-row"><span class="info-key">Major</span><span class="info-val">Pre-Business</span></div>
+          <div class="info-row"><span class="info-key">Grad Year</span><span class="info-val">2029</span></div>
+          <div class="info-row"><span class="info-key">Pilot Certificate</span><span class="info-val"><span class="badge-custom">PPL &mdash; ASEL</span></span></div>
+          <div class="info-row"><span class="info-key">Rating in Progress</span><span class="info-val"><span class="badge-custom">Instrument &mdash; IFR</span></span></div>
+          <div class="info-row"><span class="info-key">Aircraft</span><span class="info-val">C172 &amp; Diamond DA40</span></div>
+          <div class="info-row" style="border:none;"><span class="info-key">Medical</span><span class="info-val">3rd Class &mdash; Valid Sep 2028</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" class="section-dark2">
+    <div class="container">
+      <div class="section-eyebrow">Work History</div>
+      <h2 class="section-heading">Experience.</h2>
+      <div class="row g-4">
+
+        <div class="col-md-6 col-lg-4">
+          <div class="exp-card">
+            <div class="exp-role">Ski Technician</div>
+            <div class="exp-org">Sundance Mountain Resort &mdash; Provo, Utah</div>
+            <div class="exp-date">Sep 2025 &mdash; Apr 2026</div>
+            <ul class="exp-list">
+              <li>Fit guests with ski and snowboard equipment for proper sizing, safety, and performance</li>
+              <li>Performed full tuning: waxing, edge sharpening, base repair, and pre-season inspection</li>
+              <li>Delivered service in a high-end resort environment including VIP clientele</li>
+              <li>Managed rental transactions, equipment inventory, and retail sales</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="exp-card">
+            <div class="exp-role">Guest Services</div>
+            <div class="exp-org">Kelly Canyon Ski Resort &mdash; Ririe, Idaho</div>
+            <div class="exp-date">Sep 2024 &mdash; Apr 2025</div>
+            <ul class="exp-list">
+              <li>Served hundreds of guests daily across early mornings and severe winter conditions</li>
+              <li>Supported lift operations and snowmaking equipment across multiple departments</li>
+              <li>Maintained safety standards and operational readiness under demanding conditions</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <div class="exp-card">
+            <div class="exp-role">Property Manager &mdash; Seasonal</div>
+            <div class="exp-org">Blackstone LLC &mdash; Idaho Falls, Idaho</div>
+            <div class="exp-date">Jun 2021 &mdash; Aug 2025</div>
+            <ul class="exp-list">
+              <li>Managed maintenance and upkeep of privately owned vacation properties across multiple sites</li>
+              <li>Operated tools, equipment, and light machinery for landscaping, repair, and improvement tasks</li>
+              <li>Completed projects independently and with a team on tight seasonal timelines</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- RESUME -->
+  <section id="resume" class="section-dark">
+    <div class="container">
+      <div class="section-eyebrow">Curriculum Vitae</div>
+      <h2 class="section-heading">Resume.</h2>
+
+      <div class="resume-wrap">
+        <div class="resume-name">Jack Ball</div>
+        <div class="resume-tagline">Pre-Business Student &amp; Private Pilot</div>
+        <div class="resume-contact">
+          <span><i class="bi bi-geo-alt"></i> Orem, Utah</span>
+          <span><i class="bi bi-envelope"></i> <a href="mailto:jackball077@gmail.com">jackball077@gmail.com</a></span>
+          <span><i class="bi bi-telephone"></i> <a href="tel:2082233421">(208) 223-3421</a></span>
+          <span><i class="bi bi-linkedin"></i> <a href="https://www.linkedin.com/in/jack-ball-a0a1093b2/" target="_blank">LinkedIn</a></span>
+        </div>
+
+        <!-- Education -->
+        <div class="resume-block">
+          <div class="resume-section-title">Education</div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">Pre-Business</div>
+              <div class="resume-entry-date">Aug 2025 &mdash; Present</div>
+            </div>
+            <div class="resume-entry-org">Brigham Young University &mdash; Provo, Utah</div>
+            <ul class="resume-entry-bullets">
+              <li>Completing prerequisites toward BYU's Marriott School of Business</li>
+            </ul>
+          </div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">Career Pilot Program</div>
+              <div class="resume-entry-date">Aug 2025 &mdash; Present</div>
+            </div>
+            <div class="resume-entry-org">Centerline Aviation &mdash; Spanish Fork, Utah</div>
+            <ul class="resume-entry-bullets">
+              <li>Pursuing instrument rating; 189.5 total hours across C172 and Diamond DA40</li>
+              <li>Trained in IFR approaches (ILS, RNAV/GPS, VOR), holds, and emergency procedures</li>
+            </ul>
+          </div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">High School Diploma</div>
+              <div class="resume-entry-date">Sep 2021 &mdash; May 2025</div>
+            </div>
+            <div class="resume-entry-org">Ririe High School &mdash; Ririe, Idaho</div>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div class="resume-block">
+          <div class="resume-section-title">Experience</div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">Ski Technician</div>
+              <div class="resume-entry-date">Sep 2025 &mdash; Apr 2026</div>
+            </div>
+            <div class="resume-entry-org">Sundance Mountain Resort &mdash; Provo, Utah</div>
+            <ul class="resume-entry-bullets">
+              <li>Fit guests with ski and snowboard equipment ensuring proper sizing, safety, and performance</li>
+              <li>Performed tuning including waxing, edge sharpening, and full equipment inspection</li>
+              <li>Delivered professional service in a high-end environment including VIP clientele</li>
+              <li>Handled rental transactions, equipment inventory, and retail sales</li>
+            </ul>
+          </div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">Guest Services</div>
+              <div class="resume-entry-date">Sep 2024 &mdash; Apr 2025</div>
+            </div>
+            <div class="resume-entry-org">Kelly Canyon Ski Resort &mdash; Ririe, Idaho</div>
+            <ul class="resume-entry-bullets">
+              <li>Provided face-to-face service to hundreds of guests daily in a fast-paced outdoor environment</li>
+              <li>Supported lift operations and snowmaking equipment across multiple departments</li>
+              <li>Maintained safety standards and operational readiness through all conditions</li>
+            </ul>
+          </div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">Property Manager &mdash; Seasonal</div>
+              <div class="resume-entry-date">Jun 2021 &mdash; Aug 2025</div>
+            </div>
+            <div class="resume-entry-org">Blackstone LLC &mdash; Idaho Falls, Idaho</div>
+            <ul class="resume-entry-bullets">
+              <li>Managed maintenance and upkeep of privately owned vacation properties across multiple sites</li>
+              <li>Operated tools, equipment, and light machinery for landscaping, repair, and general improvement tasks</li>
+              <li>Worked independently and with a team to complete projects on tight seasonal timelines</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="resume-block">
+          <div class="resume-section-title">Certifications &amp; Achievements</div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">FAA Private Pilot Certificate &mdash; ASEL</div>
+              <div class="resume-entry-date">Issued Nov 2025</div>
+            </div>
+            <div class="resume-entry-org">Federal Aviation Administration</div>
+            <ul class="resume-entry-bullets">
+              <li>Passed oral and practical exam after completing all 61.107 &amp; 61.109 training requirements</li>
+              <li>Third-class medical certificate valid through September 2028</li>
+            </ul>
+          </div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">FAA Instrument Rating &mdash; In Progress</div>
+              <div class="resume-entry-date">Aug 2025 &mdash; Present</div>
+            </div>
+            <div class="resume-entry-org">Centerline Aviation &mdash; Part 61 Training</div>
+            <ul class="resume-entry-bullets">
+              <li>41 instrument approaches logged (ILS, RNAV/GPS, VOR); 20+ hours simulated and actual IMC</li>
+              <li>Training under CFII Joshua Weening in Diamond DA40</li>
+            </ul>
+          </div>
+
+          <div class="resume-entry">
+            <div class="resume-entry-header">
+              <div class="resume-entry-title">Solo Cross-Country &mdash; Diamond DA40</div>
+              <div class="resume-entry-date">Nov 2025</div>
+            </div>
+            <div class="resume-entry-org">Centerline Aviation</div>
+            <ul class="resume-entry-bullets">
+              <li>Completed solo cross-country routes including KSPK to 1L8 via KFOM and KMLF with multiple stops</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="resume-block" style="margin-bottom:0;">
+          <div class="resume-section-title">Skills</div>
+          <div class="resume-skills-grid">
+            <span class="skill-pill">Physical Ability &amp; Endurance</span>
+            <span class="skill-pill">Reliability &amp; Punctuality</span>
+            <span class="skill-pill">Safe Equipment Operations</span>
+            <span class="skill-pill">Team Collaboration</span>
+            <span class="skill-pill">Customer Service</span>
+            <span class="skill-pill">Inventory Management</span>
+            <span class="skill-pill">Cross-Country Navigation</span>
+            <span class="skill-pill">IFR Flight Procedures</span>
+            <span class="skill-pill">Preventive Maintenance</span>
+            <span class="skill-pill">Adaptability</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION CARDS -->
+  <section id="education" class="section-dark2">
+    <div class="container">
+      <div class="section-eyebrow">Education &amp; Certifications</div>
+      <h2 class="section-heading">Background.</h2>
+      <div class="row g-4">
+
+        <div class="col-sm-6 col-lg-4">
+          <div class="edu-card">
+            <div class="edu-icon"><i class="bi bi-mortarboard"></i></div>
+            <div class="edu-title">Pre-Business</div>
+            <div class="edu-org">Brigham Young University</div>
+            <div class="edu-date">Aug 2025 &mdash; Present &nbsp;&middot;&nbsp; Provo, Utah</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+          <div class="edu-card">
+            <div class="edu-icon"><i class="bi bi-compass"></i></div>
+            <div class="edu-title">Career Pilot Program</div>
+            <div class="edu-org">Centerline Aviation</div>
+            <div class="edu-date">Aug 2025 &mdash; Present &nbsp;&middot;&nbsp; Spanish Fork, Utah</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+          <div class="edu-card">
+            <div class="edu-icon"><i class="bi bi-building"></i></div>
+            <div class="edu-title">High School Diploma</div>
+            <div class="edu-org">Ririe High School</div>
+            <div class="edu-date">Sep 2021 &mdash; May 2025 &nbsp;&middot;&nbsp; Ririe, Idaho</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+          <div class="edu-card" style="border-color: var(--blue-border);">
+            <div class="edu-icon"><i class="bi bi-award"></i></div>
+            <div class="edu-title">Private Pilot Certificate &mdash; ASEL</div>
+            <div class="edu-org">FAA Issued &mdash; November 2025</div>
+            <div class="edu-date">3rd Class Medical &nbsp;&middot;&nbsp; Valid through Sep 2028</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+          <div class="edu-card" style="border-color: var(--blue-border);">
+            <div class="edu-icon"><i class="bi bi-reception-4"></i></div>
+            <div class="edu-title">Instrument Rating &mdash; In Progress</div>
+            <div class="edu-org">FAA Part 61 &mdash; Centerline Aviation</div>
+            <div class="edu-date">41 approaches &nbsp;&middot;&nbsp; ILS, RNAV, VOR</div>
+          </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+          <div class="edu-card">
+            <div class="edu-icon"><i class="bi bi-snow2"></i></div>
+            <div class="edu-title">Ski &amp; Snowboard Technician</div>
+            <div class="edu-org">Sundance Mountain Resort</div>
+            <div class="edu-date">Equipment fitting, tuning, edge work, waxing</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section-dark">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="section-eyebrow">Get in Touch</div>
+          <h2 class="section-heading">Let's connect.</h2>
+          <p style="font-size:1rem;color:var(--muted);font-weight:300;line-height:1.75;margin-bottom:2.5rem;">Whether it's a job opportunity, an aviation question, or just to say hello. I check email and LinkedIn regularly.</p>
+
+          <a href="mailto:jackball077@gmail.com" class="contact-link-row">
+            <div><div class="contact-type">Email</div><span style="font-size:0.95rem;">jackball077@gmail.com</span></div>
+            <i class="bi bi-arrow-right ci"></i>
+          </a>
+          <a href="https://www.linkedin.com/in/jack-ball-a0a1093b2/" target="_blank" rel="noopener" class="contact-link-row">
+            <div><div class="contact-type">LinkedIn</div><span style="font-size:0.95rem;">linkedin.com/in/jack-ball-a0a1093b2</span></div>
+            <i class="bi bi-arrow-right ci"></i>
+          </a>
+          <a href="tel:2082233421" class="contact-link-row">
+            <div><div class="contact-type">Phone</div><span style="font-size:0.95rem;">(208) 223-3421</span></div>
+            <i class="bi bi-arrow-right ci"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span>Jack Ball &mdash; Orem, Utah</span>
+      <div class="d-flex gap-3 align-items-center">
+        <a href="mailto:jackball077@gmail.com" style="color:var(--faint);text-decoration:none;font-size:1rem;"><i class="bi bi-envelope"></i></a>
+        <a href="https://www.linkedin.com/in/jack-ball-a0a1093b2/" target="_blank" rel="noopener" style="color:var(--faint);text-decoration:none;font-size:1rem;"><i class="bi bi-linkedin"></i></a>
+        <a href="tel:2082233421" style="color:var(--faint);text-decoration:none;font-size:1rem;"><i class="bi bi-telephone"></i></a>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /page-home -->
+
+
+<!-- ===================== PAGE: GAME ===================== -->
+<div class="page" id="page-game">
+  <div class="container">
+    <div class="game-header">
+      <div class="section-eyebrow" style="justify-content:center;">Mini Game</div>
+      <h2>Ski Run Snake</h2>
+      <p>Navigate the slopes &middot; collect gates &middot; dodge the trees</p>
+    </div>
+
+    <div class="game-hud">
+      <div class="hud-block"><span class="hud-val" id="scoreVal">0</span><div class="hud-lbl">Score</div></div>
+      <div class="hud-block"><span class="hud-val" id="bestVal">0</span><div class="hud-lbl">Best</div></div>
+      <div class="hud-block"><span class="hud-val" id="levelVal">1</span><div class="hud-lbl">Run</div></div>
+      <div class="hud-block"><span class="hud-val" id="gatesVal">0</span><div class="hud-lbl">Gates</div></div>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
+      <div id="gameOverlay" class="show">
+        <h3>Ski Run Snake</h3>
+        <p>Collect ski gates to grow your run.<br/>Dodge trees and don't cross your tracks.<br/><br/>Arrow keys or D-pad to steer.</p>
+        <button class="gbtn gbtn-primary" onclick="startGame()">Start</button>
+      </div>
+    </div>
+
+    <div class="speed-wrap">
+      <span>Speed</span>
+      <div class="speed-track"><div class="speed-fill" id="speedBar"></div></div>
+      <span>Max</span>
+    </div>
+
+    <div class="game-legend">
+      <span><div class="leg-dot" style="background:#c82020;"></div> Skier</span>
+      <span><div class="leg-dot" style="background:#e8c840;"></div> Gate</span>
+      <span><div class="leg-dot" style="background:#2d7a2d;"></div> Tree</span>
+      <span><div class="leg-dot" style="background:#c8ddf0;"></div> Track</span>
+    </div>
+
+    <div class="game-controls">
+      <div class="dpad">
+        <button class="up"    onclick="changeDir(0,-1)">&#9650;</button>
+        <button class="left"  onclick="changeDir(-1,0)">&#9664;</button>
+        <button class="right" onclick="changeDir(1,0)">&#9654;</button>
+        <button class="down"  onclick="changeDir(0,1)">&#9660;</button>
+      </div>
+      <div class="btn-row">
+        <button class="gbtn gbtn-primary" onclick="startGame()">Restart</button>
+        <button class="gbtn gbtn-ghost" onclick="toggleMute()" id="muteBtn">Sound On</button>
+        <button class="gbtn gbtn-ghost" onclick="showPage('home')">Back to Portfolio</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /page-game -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* PAGE SWITCHING */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('tab-active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const tab = document.getElementById('tab-' + name);
+  if (tab) tab.classList.add('tab-active');
+  window.scrollTo(0, 0);
+}
+
+/* COUNT-UP */
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target, 10);
+  const duration = 1400;
+  const start = performance.now();
+  function step(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(ease * target);
+    if (progress < 1) requestAnimationFrame(step);
+    else el.textContent = target;
+  }
+  requestAnimationFrame(step);
+}
+const counters = document.querySelectorAll('.count-up');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => { if (entry.isIntersecting) { animateCounter(entry.target); io.unobserve(entry.target); } });
+}, { threshold: 0.4 });
+counters.forEach(c => io.observe(c));
+
+/* MOBILE NAV CLOSE */
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    const collapse = document.getElementById('navMenu');
+    const bsCollapse = bootstrap.Collapse.getInstance(collapse);
+    if (bsCollapse) bsCollapse.hide();
+  });
+});
+
+/* ===== SNAKE GAME ===== */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const COLS=20, ROWS=20, CELL=canvas.width/COLS;
+let snake, dir, nextDir, gates, trees, score, best, level, gatesHit, gameLoop, speed, muted, alive;
+best = parseInt(localStorage.getItem('skiSnakeBest')||'0');
+muted = false;
+document.getElementById('bestVal').textContent = best;
+
+let audioCtx;
+function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
+function beep(f,d,t='sine',v=.15) {
+  if (muted) return;
+  try { const a=getAudio(),o=a.createOscillator(),g=a.createGain(); o.connect(g); g.connect(a.destination); o.type=t; o.frequency.value=f; g.gain.setValueAtTime(v,a.currentTime); g.gain.exponentialRampToValueAtTime(.001,a.currentTime+d); o.start(); o.stop(a.currentTime+d); } catch(e) {}
+}
+function toggleMute() { muted=!muted; document.getElementById('muteBtn').textContent=muted?'Sound Off':'Sound On'; }
+
+function startGame() {
+  clearInterval(gameLoop);
+  document.getElementById('gameOverlay').classList.remove('show');
+  snake=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+  dir={x:1,y:0}; nextDir={x:1,y:0};
+  gates=[]; trees=[]; score=0; level=1; gatesHit=0; speed=150; alive=true;
+  updateHUD(); spawnGate(); spawnTrees(4);
+  gameLoop=setInterval(tick,speed);
+}
+function rand() { return {x:Math.floor(Math.random()*COLS),y:Math.floor(Math.random()*ROWS)}; }
+function isFree(c) { return !snake.some(s=>s.x===c.x&&s.y===c.y)&&!gates.some(g=>g.x===c.x&&g.y===c.y)&&!trees.some(t=>t.x===c.x&&t.y===c.y); }
+function spawnGate() { let c,i=0; do{c=rand();i++;}while(!isFree(c)&&i<200); gates.push(c); }
+function spawnTrees(n) { for(let i=0;i<n;i++){let c,j=0;do{c=rand();j++;}while(!isFree(c)&&j<200);trees.push(c);} }
+function changeDir(dx,dy) { if(dx===-dir.x&&dy===-dir.y)return; nextDir={x:dx,y:dy}; }
+document.addEventListener('keydown', e => {
+  switch(e.key) {
+    case 'ArrowUp':    changeDir(0,-1); e.preventDefault(); break;
+    case 'ArrowDown':  changeDir(0,1);  e.preventDefault(); break;
+    case 'ArrowLeft':  changeDir(-1,0); e.preventDefault(); break;
+    case 'ArrowRight': changeDir(1,0);  e.preventDefault(); break;
+  }
+});
+function tick() {
+  dir=nextDir;
+  const h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+  if(h.x<0||h.x>=COLS||h.y<0||h.y>=ROWS){die();return;}
+  if(snake.some(s=>s.x===h.x&&s.y===h.y)){die();return;}
+  if(trees.some(t=>t.x===h.x&&t.y===h.y)){die();return;}
+  snake.unshift(h);
+  const gi=gates.findIndex(g=>g.x===h.x&&g.y===h.y);
+  if(gi!==-1){gates.splice(gi,1);score+=10*level;gatesHit++;beep(880,.1,'square');spawnGate();if(gatesHit%5===0)levelUp();}
+  else{snake.pop();}
+  updateHUD(); draw();
+}
+function die() {
+  clearInterval(gameLoop); alive=false;
+  beep(150,.5,'sawtooth',.3);
+  if(score>best){best=score;localStorage.setItem('skiSnakeBest',best);}
+  draw();
+  setTimeout(()=>{
+    const o=document.getElementById('gameOverlay');
+    o.innerHTML=`<h3>Wipeout</h3><p>Score: <strong style="color:var(--blue)">${score}</strong> &nbsp;&middot;&nbsp; Best: ${best}</p><button class="gbtn gbtn-primary" onclick="startGame()">Try Again</button>`;
+    o.classList.add('show');
+  },400);
+}
+function levelUp() { level++; clearInterval(gameLoop); speed=Math.max(60,speed-15); gameLoop=setInterval(tick,speed); spawnTrees(2); beep(660,.15,'square'); setTimeout(()=>beep(880,.15,'square'),150); }
+function updateHUD() {
+  document.getElementById('scoreVal').textContent=score;
+  document.getElementById('bestVal').textContent=best;
+  document.getElementById('levelVal').textContent=level;
+  document.getElementById('gatesVal').textContent=gatesHit;
+  document.getElementById('speedBar').style.width=Math.min(100,((150-speed)/90)*100+10)+'%';
+}
+const flakes=Array.from({length:30},()=>({x:Math.random()*400,y:Math.random()*400,r:Math.random()*2+.5}));
+function draw() {
+  const grad=ctx.createLinearGradient(0,0,0,canvas.height);
+  grad.addColorStop(0,'#dff0ff'); grad.addColorStop(1,'#c5dff0');
+  ctx.fillStyle=grad; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='rgba(180,210,240,0.4)'; ctx.lineWidth=1;
+  for(let i=0;i<ROWS;i++){ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(canvas.width,i*CELL);ctx.stroke();}
+  ctx.fillStyle='rgba(255,255,255,0.8)';
+  for(const f of flakes){ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fill();}
+  for(let i=snake.length-1;i>=1;i--){
+    const s=snake[i],t=i/snake.length;
+    ctx.fillStyle=`rgba(180,205,230,${.5+t*.3})`;
+    ctx.fillRect(s.x*CELL+2,s.y*CELL+2,CELL-4,CELL-4);
+    ctx.fillStyle='rgba(150,185,220,0.6)';
+    ctx.fillRect(s.x*CELL+CELL/2-1,s.y*CELL+2,2,CELL-4);
+  }
+  const h=snake[0];
+  ctx.fillStyle='rgba(0,0,0,0.1)'; ctx.fillRect(h.x*CELL+3,h.y*CELL+5,CELL-4,CELL-4);
+  ctx.fillStyle='#c82020'; ctx.beginPath(); ctx.roundRect(h.x*CELL+2,h.y*CELL+2,CELL-4,CELL-4,4); ctx.fill();
+  ctx.font=`${CELL-4}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('⛷️',h.x*CELL+CELL/2,h.y*CELL+CELL/2);
+  for(const g of gates){ctx.font=`${CELL}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🚩',g.x*CELL+CELL/2,g.y*CELL+CELL/2);}
+  for(const t of trees){ctx.font=`${CELL}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🌲',t.x*CELL+CELL/2,t.y*CELL+CELL/2);}
+  if(!alive){ctx.fillStyle='rgba(200,32,32,0.12)';ctx.fillRect(0,0,canvas.width,canvas.height);}
+}
+draw();
+</script>
+</body>
+</html>

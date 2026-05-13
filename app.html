@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ski Run Snake</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a1628;
+      color: #e0eaff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1.5rem 1rem;
+      user-select: none;
+    }
+
+    /* ===== HEADER ===== */
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(120,180,255,0.5);
+      margin-bottom: 0.2rem;
+    }
+    .tagline { color: #6a9fd8; font-size: 0.88rem; letter-spacing: 1px; margin-bottom: 1.2rem; }
+
+    /* ===== HUD ===== */
+    .hud {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      color: #b0c8e8;
+    }
+    .hud span { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
+    .hud .val { font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .hud .lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #5a7fa8; }
+
+    /* ===== CANVAS ===== */
+    #gameCanvas {
+      display: block;
+      border: 2px solid #2a4a7a;
+      border-radius: 4px;
+      box-shadow: 0 0 40px rgba(80,140,240,0.15);
+      background: #e8f4ff;
+      cursor: pointer;
+    }
+
+    /* ===== SPEED BAR ===== */
+    .speed-bar-wrap {
+      width: 400px;
+      margin-top: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.8rem;
+      color: #5a7fa8;
+    }
+    .speed-bar-track {
+      flex: 1;
+      height: 6px;
+      background: #1a3050;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .speed-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4a9fff, #ff6060);
+      border-radius: 3px;
+      transition: width 0.3s;
+      width: 10%;
+    }
+
+    /* ===== CONTROLS ===== */
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dpad {
+      display: grid;
+      grid-template-areas: '. up .' 'left . right' '. down .';
+      gap: 4px;
+    }
+    .dpad button {
+      width: 44px; height: 44px;
+      background: #1a3050;
+      border: 1px solid #2a4a7a;
+      border-radius: 6px;
+      color: #a0c0e8;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .dpad button:active { background: #2a5090; }
+    .dpad .up    { grid-area: up; }
+    .dpad .down  { grid-area: down; }
+    .dpad .left  { grid-area: left; }
+    .dpad .right { grid-area: right; }
+
+    .btn-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+    .btn {
+      padding: 0.5rem 1.4rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary { background: #3a80d0; color: white; }
+    .btn-mute    { background: #1a3050; color: #6a9fd8; border: 1px solid #2a4a7a; }
+
+    /* ===== OVERLAY ===== */
+    #overlay {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10,22,40,0.88);
+      border-radius: 4px;
+      text-align: center;
+      padding: 2rem;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    #overlay.show { opacity: 1; pointer-events: all; }
+    #overlay h2 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff; }
+    #overlay p  { color: #8ab0d8; margin-bottom: 1.2rem; font-size: 0.95rem; }
+    #overlay .btn { pointer-events: all; }
+
+    .canvas-wrap { position: relative; }
+
+    /* ===== LEGEND ===== */
+    .legend {
+      margin-top: 0.8rem;
+      display: flex;
+      gap: 1.2rem;
+      font-size: 0.78rem;
+      color: #5a7fa8;
+    }
+    .legend span { display: flex; align-items: center; gap: 0.3rem; }
+    .legend .dot {
+      width: 12px; height: 12px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<h1>⛷️ Ski Run</h1>
+<p class="tagline">Navigate the slopes · collect gates · dodge the trees</p>
+
+<div class="hud">
+  <span><div class="val" id="scoreVal">0</div><div class="lbl">Score</div></span>
+  <span><div class="val" id="bestVal">0</div><div class="lbl">Best</div></span>
+  <span><div class="val" id="levelVal">1</div><div class="lbl">Run</div></span>
+  <span><div class="val" id="gatesVal">0</div><div class="lbl">Gates</div></span>
+</div>
+
+<div class="canvas-wrap">
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div id="overlay" class="show">
+    <h2>⛷️ Ski Run Snake</h2>
+    <p>Collect ski gates 🚩 to grow your run.<br/>Dodge trees 🌲 and don't cross your own tracks!<br/><br/>Arrow keys or D-pad to steer.</p>
+    <button class="btn btn-primary" onclick="startGame()">Start Skiing</button>
+  </div>
+</div>
+
+<div class="speed-bar-wrap">
+  <span>Speed</span>
+  <div class="speed-bar-track"><div class="speed-bar-fill" id="speedBar"></div></div>
+  <span>🔥</span>
+</div>
+
+<div class="legend">
+  <span><div class="dot" style="background:#d62b2b;border:2px solid #a01818;"></div> Skier</span>
+  <span><div class="dot" style="background:#e8c840;"></div> Gate 🚩</span>
+  <span><div class="dot" style="background:#2d7a2d;"></div> Tree 🌲</span>
+  <span><div class="dot" style="background:#c8ddf0;"></div> Snow track</span>
+</div>
+
+<div class="controls">
+  <div class="dpad">
+    <button class="up"    onclick="changeDir(0,-1)">▲</button>
+    <button class="left"  onclick="changeDir(-1,0)">◀</button>
+    <button class="right" onclick="changeDir(1,0)">▶</button>
+    <button class="down"  onclick="changeDir(0,1)">▼</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="startGame()">Restart</button>
+    <button class="btn btn-mute" onclick="toggleMute()" id="muteBtn">🔊 Sound</button>
+  </div>
+</div>
+
+<p style="margin-top:1rem;font-size:0.78rem;color:#2a4a7a;">
+  <a href="scratch.html" style="color:#3a70b0;">← Back to SAF Page</a>
+</p>
+
+<script>
+  /* ===== CANVAS SETUP ===== */
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const COLS = 20, ROWS = 20;
+  const CELL = canvas.width / COLS;
+
+  /* ===== STATE ===== */
+  let snake, dir, nextDir, gates, trees, score, best, level, gatesHit, gameLoop, speed, muted, alive;
+  best = parseInt(localStorage.getItem('skiSnakeBest') || '0');
+  muted = false;
+  document.getElementById('bestVal').textContent = best;
+
+  /* ===== AUDIO (simple beeps via AudioContext) ===== */
+  let audioCtx;
+  function getCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
+  function beep(freq, dur, type='sine', vol=0.15) {
+    if (muted) return;
+    try {
+      const ctx2 = getCtx();
+      const osc = ctx2.createOscillator();
+      const gain = ctx2.createGain();
+      osc.connect(gain); gain.connect(ctx2.destination);
+      osc.type = type; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol, ctx2.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx2.currentTime + dur);
+      osc.start(); osc.stop(ctx2.currentTime + dur);
+    } catch(e) {}
+  }
+  function toggleMute() {
+    muted = !muted;
+    document.getElementById('muteBtn').textContent = muted ? '🔇 Sound' : '🔊 Sound';
+  }
+
+  /* ===== INIT ===== */
+  function startGame() {
+    clearInterval(gameLoop);
+    hideOverlay();
+    snake = [{x:10, y:10},{x:9,y:10},{x:8,y:10}];
+    dir = {x:1, y:0};
+    nextDir = {x:1, y:0};
+    gates = [];
+    trees = [];
+    score = 0;
+    level = 1;
+    gatesHit = 0;
+    speed = 150;
+    alive = true;
+    updateHUD();
+    spawnGate();
+    spawnTrees(4);
+    gameLoop = setInterval(tick, speed);
+  }
+
+  function hideOverlay() {
+    document.getElementById('overlay').classList.remove('show');
+  }
+  function showOverlay(title, msg, btn) {
+    const o = document.getElementById('overlay');
+    o.innerHTML = `<h2>${title}</h2><p>${msg}</p><button class="btn btn-primary" onclick="startGame()">${btn}</button>`;
+    o.classList.add('show');
+  }
+
+  /* ===== SPAWN ===== */
+  function randCell() {
+    return { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
+  }
+  function isFree(cell) {
+    if (snake.some(s => s.x===cell.x && s.y===cell.y)) return false;
+    if (gates.some(g => g.x===cell.x && g.y===cell.y)) return false;
+    if (trees.some(t => t.x===cell.x && t.y===cell.y)) return false;
+    return true;
+  }
+  function spawnGate() {
+    let cell, tries=0;
+    do { cell = randCell(); tries++; } while (!isFree(cell) && tries<200);
+    gates.push(cell);
+  }
+  function spawnTrees(n) {
+    for(let i=0;i<n;i++){
+      let cell, tries=0;
+      do { cell = randCell(); tries++; } while (!isFree(cell) && tries<200);
+      trees.push(cell);
+    }
+  }
+
+  /* ===== INPUT ===== */
+  function changeDir(dx, dy) {
+    if (dx === -dir.x && dy === -dir.y) return; // can't reverse
+    nextDir = {x:dx, y:dy};
+  }
+  document.addEventListener('keydown', e => {
+    switch(e.key) {
+      case 'ArrowUp':    changeDir(0,-1); e.preventDefault(); break;
+      case 'ArrowDown':  changeDir(0,1);  e.preventDefault(); break;
+      case 'ArrowLeft':  changeDir(-1,0); e.preventDefault(); break;
+      case 'ArrowRight': changeDir(1,0);  e.preventDefault(); break;
+    }
+  });
+
+  /* ===== TICK ===== */
+  function tick() {
+    dir = nextDir;
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+
+    // Wall collision
+    if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) {
+      die(); return;
+    }
+    // Self collision
+    if (snake.some(s => s.x===head.x && s.y===head.y)) {
+      die(); return;
+    }
+    // Tree collision
+    if (trees.some(t => t.x===head.x && t.y===head.y)) {
+      die(); return;
+    }
+
+    snake.unshift(head);
+
+    // Gate collection
+    const gi = gates.findIndex(g => g.x===head.x && g.y===head.y);
+    if (gi !== -1) {
+      gates.splice(gi,1);
+      score += 10 * level;
+      gatesHit++;
+      beep(880, 0.1, 'square');
+      spawnGate();
+      if (gatesHit % 5 === 0) levelUp();
+    } else {
+      snake.pop();
+    }
+
+    updateHUD();
+    draw();
+  }
+
+  function die() {
+    clearInterval(gameLoop);
+    alive = false;
+    beep(150, 0.5, 'sawtooth', 0.3);
+    if (score > best) {
+      best = score;
+      localStorage.setItem('skiSnakeBest', best);
+    }
+    draw();
+    setTimeout(() => {
+      showOverlay('💥 Wipeout!', `You scored <strong style="color:#4af">${score}</strong> points on Run ${level}.<br/>Best: ${best}`, 'Try Again');
+    }, 400);
+  }
+
+  function levelUp() {
+    level++;
+    clearInterval(gameLoop);
+    speed = Math.max(60, speed - 15);
+    gameLoop = setInterval(tick, speed);
+    spawnTrees(2);
+    beep(660, 0.15, 'square');
+    setTimeout(() => beep(880, 0.15, 'square'), 150);
+  }
+
+  function updateHUD() {
+    document.getElementById('scoreVal').textContent = score;
+    document.getElementById('bestVal').textContent = best;
+    document.getElementById('levelVal').textContent = level;
+    document.getElementById('gatesVal').textContent = gatesHit;
+    const pct = Math.min(100, ((150 - speed) / 90) * 100 + 10);
+    document.getElementById('speedBar').style.width = pct + '%';
+  }
+
+  /* ===== DRAW ===== */
+  // Snowflake positions (static decorative)
+  const flakes = Array.from({length:30}, () => ({
+    x: Math.random()*400, y: Math.random()*400,
+    r: Math.random()*2+0.5
+  }));
+
+  function draw() {
+    // Background: snowy slope
+    const grad = ctx.createLinearGradient(0,0,0,canvas.height);
+    grad.addColorStop(0, '#dff0ff');
+    grad.addColorStop(1, '#c5dff0');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    // Subtle slope lines
+    ctx.strokeStyle = 'rgba(180,210,240,0.4)';
+    ctx.lineWidth = 1;
+    for(let i=0;i<ROWS;i++){
+      ctx.beginPath();
+      ctx.moveTo(0, i*CELL);
+      ctx.lineTo(canvas.width, i*CELL);
+      ctx.stroke();
+    }
+
+    // Snowflakes
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    for(const f of flakes) {
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // Snake body (ski tracks)
+    for(let i=snake.length-1;i>=1;i--){
+      const s = snake[i];
+      const t = i/snake.length;
+      ctx.fillStyle = `rgba(180,205,230,${0.5 + t*0.3})`;
+      ctx.fillRect(s.x*CELL+2, s.y*CELL+2, CELL-4, CELL-4);
+      // Track marks
+      ctx.fillStyle = 'rgba(150,185,220,0.6)';
+      ctx.fillRect(s.x*CELL+CELL/2-1, s.y*CELL+2, 2, CELL-4);
+    }
+
+    // Snake head (skier)
+    const h = snake[0];
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.fillRect(h.x*CELL+3, h.y*CELL+5, CELL-4, CELL-4);
+    // Body
+    ctx.fillStyle = '#c82020';
+    ctx.beginPath();
+    ctx.roundRect(h.x*CELL+2, h.y*CELL+2, CELL-4, CELL-4, 4);
+    ctx.fill();
+    // Jacket detail
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(h.x*CELL+CELL/2-1, h.y*CELL+4, 2, 4);
+    // Emoji fallback
+    ctx.font = `${CELL-4}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⛷️', h.x*CELL+CELL/2, h.y*CELL+CELL/2);
+
+    // Gates
+    for(const g of gates) {
+      ctx.font = `${CELL}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🚩', g.x*CELL+CELL/2, g.y*CELL+CELL/2);
+    }
+
+    // Trees
+    for(const t of trees) {
+      ctx.font = `${CELL}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🌲', t.x*CELL+CELL/2, t.y*CELL+CELL/2);
+    }
+
+    // Death flash
+    if (!alive) {
+      ctx.fillStyle = 'rgba(255,50,50,0.15)';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+    }
+  }
+
+  // Initial draw of empty board
+  draw();
+</script>
+</body>
+</html>
