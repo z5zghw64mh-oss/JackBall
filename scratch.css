@@ -1,0 +1,218 @@
+/* =========================================
+   SAF Scratch Page — Custom Stylesheet
+   ========================================= */
+
+/* --- Reset & Base --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Lato', sans-serif;
+  background-color: #0b1f38;
+  color: #e8eeee;
+  line-height: 1.75;
+}
+
+/* --- Typography --- */
+h1, h2, h3 {
+  font-family: 'Oswald', sans-serif;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+h1 {
+  font-size: 3.2rem;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: #60c5f1;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+h3 {
+  font-size: 1.2rem;
+  color: #60c5f1;
+  margin-bottom: 0.5rem;
+}
+
+p {
+  font-size: 1rem;
+  color: #c8d8e4;
+  margin-bottom: 1rem;
+}
+
+a {
+  color: #60c5f1;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #a0dcf7;
+}
+
+/* --- DIV: Header / Hero --- */
+div#hero-header {
+  background: linear-gradient(160deg, #051325 0%, #0d2d54 50%, #1a5276 100%);
+  padding: 5rem 2rem 4rem;
+  text-align: center;
+  border-bottom: 3px solid #60c5f1;
+  position: relative;
+  overflow: hidden;
+}
+
+div#hero-header::before {
+  content: '✈';
+  position: absolute;
+  font-size: 20rem;
+  color: rgba(96, 197, 241, 0.05);
+  top: -3rem;
+  right: -2rem;
+  pointer-events: none;
+}
+
+div#hero-header p.subtitle {
+  font-size: 1.15rem;
+  color: #a0c4d8;
+  max-width: 620px;
+  margin: 1rem auto 0;
+}
+
+/* --- DIV: Main Content Wrapper --- */
+div#content-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+}
+
+/* --- DIV: Card / Info Block --- */
+div.info-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid #60c5f1;
+  border-radius: 4px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+}
+
+/* --- Lists --- */
+ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  color: #c8d8e4;
+  margin-bottom: 1rem;
+}
+
+ul li {
+  margin-bottom: 0.4rem;
+}
+
+ol {
+  padding-left: 1.5rem;
+  color: #c8d8e4;
+  margin-bottom: 1rem;
+}
+
+ol li {
+  margin-bottom: 0.75rem;
+}
+
+/* --- Navbar --- */
+nav#topnav {
+  background-color: #05111f;
+  padding: 0.9rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #1a4a72;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+nav#topnav .nav-brand {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.1rem;
+  color: #60c5f1;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+nav#topnav .nav-links a {
+  color: #a0c4d8;
+  margin-left: 1.5rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: color 0.2s;
+}
+
+nav#topnav .nav-links a:hover {
+  color: #60c5f1;
+  text-decoration: none;
+}
+
+/* --- Section Divider --- */
+.section-divider {
+  border: none;
+  border-top: 1px solid rgba(96, 197, 241, 0.25);
+  margin: 2.5rem 0;
+}
+
+/* --- Verdict Box --- */
+div#verdict-box {
+  background: linear-gradient(135deg, #0d3b6e, #0b2a50);
+  border: 2px solid #60c5f1;
+  border-radius: 6px;
+  padding: 2rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+div#verdict-box p {
+  font-size: 1.1rem;
+  color: #ddeef7;
+  max-width: 680px;
+  margin: 0.5rem auto 0;
+}
+
+/* --- YouTube embed wrapper --- */
+div.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+div.video-wrapper iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border: none;
+}
+
+/* --- Image styles --- */
+img.full-width {
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+/* --- Footer --- */
+footer#page-footer {
+  background: #05111f;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.82rem;
+  color: #4a7a9b;
+  border-top: 1px solid #1a4a72;
+  margin-top: 3rem;
+}
